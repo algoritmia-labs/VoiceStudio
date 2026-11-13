@@ -180,8 +180,12 @@ def _accept_list_ignore_patterns():
     patterns are only ever matched, so a set is equivalent.
     """
     try:
+        import transformers  # noqa: PLC0415
         from transformers.modeling_utils import PreTrainedModel  # noqa: PLC0415
     except Exception:  # noqa: BLE001 — upstream's own import reports it
+        return
+    # transformers 4 concatenates the patterns with a list, so a set breaks it.
+    if int(transformers.__version__.split(".", 1)[0]) < 5:
         return
     original = getattr(PreTrainedModel, "_adjust_missing_and_unexpected_keys", None)
     if original is None or getattr(original, "_voicestudio_accepts_lists", False):
